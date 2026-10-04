@@ -1,7 +1,10 @@
 [package]
 name = "rust-linear-regression"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
+description = "Regressão linear simples (mínimos quadrados) sem dependências externas"
+license = "MIT"
+repository = "https://github.com/Brunacoelhob/estudo-rust-regressao-linear"
 
 [dependencies]
 
@@ -12,3 +15,7 @@ path = "src/lib.rs"
 [[bin]]
 name = "rust-linear-regression"
 path = "src/main.rs"
+
+[profile.release]
+lto = true
+codegen-units = 1

@@ -1,50 +1,59 @@
 # Regressão Linear em Rust
 
-Este projeto implementa uma **regressão linear pura** em Rust, sem o uso de bibliotecas externas para cálculos matemáticos. Ele inclui funcionalidades para calcular os coeficientes da regressão, avaliar a qualidade do modelo e realizar previsões para novos valores.
+[![CI](https://github.com/Brunacoelhob/estudo-rust-regressao-linear/actions/workflows/ci.yml/badge.svg)](https://github.com/Brunacoelhob/estudo-rust-regressao-linear/actions/workflows/ci.yml)
+![Rust](https://img.shields.io/badge/rust-2021-orange)
+![License](https://img.shields.io/badge/license-MIT-blue)
 
----
+Regressão linear simples (mínimos quadrados) **sem dependências externas**: biblioteca reutilizável + CLI que lê um CSV.
 
-## **Objetivo**
-O objetivo deste projeto é fornecer uma implementação eficiente e simples de regressão linear para análise de séries temporais, com foco em aprendizado e prática de programação em Rust.
+## Destaques
 
----
+- **Numericamente estável**: usa somas centradas na média (a fórmula "de livro" perde precisão com `x` grandes, como timestamps).
+- **Erros tipados** (`RegressionError`), sem *panic*: tamanhos diferentes, dados vazios, menos de 2 pontos, `NaN`/infinito e `x` constante.
+- **Casos de borda tratados** no R² (`y` constante).
+- API de alto nível: `LinearModel::fit(&x, &y)` devolve coeficientes, R² e MSE.
+- 12 testes de unidade + doctest; CI com `fmt`, `clippy -D warnings` e testes.
 
-## **Funcionalidades**
-1. **Regressão Linear**:
-   - Calcula os coeficientes da reta (intercepto e inclinação) que melhor se ajusta aos dados fornecidos.
+## Uso como biblioteca
 
-2. **Métricas de Avaliação**:
-   - **R² (Coeficiente de Determinação)**: Mede a qualidade do ajuste do modelo.
-   - **MSE (Erro Quadrático Médio)**: Mede o erro médio entre os valores reais e os previstos.
+```rust
+use rust_linear_regression::regression::linear::LinearModel;
 
-3. **Previsões**:
-   - Realiza previsões para novos valores com base nos coeficientes calculados.
+let modelo = LinearModel::fit(&[1.0, 2.0, 3.0], &[2.0, 4.0, 6.0])?;
+println!("y = {} + {}·x  (R² = {})", modelo.intercept, modelo.slope, modelo.r_squared);
+println!("previsão para x = 10: {}", modelo.predict_one(10.0));
+```
 
----
+Funções avulsas também estão disponíveis: `linear_regression`, `r_squared`, `mean_squared_error` e `predict`.
 
-## **Estrutura do Projeto**
+## Uso como programa
 
-rust-linear-regression ├── src │ ├── regression │ │ ├── linear.rs # Implementação da regressão linear e métricas │ │ └── mod.rs # Módulo para expor as funções de regressão │ ├── utils │ │ └── mod.rs # Funções auxiliares │ ├── lib.rs # Biblioteca principal │ └── main.rs # Ponto de entrada do programa ├── Cargo.toml # Configuração do projeto ├── Cargo.lock # Gerado automaticamente pelo Cargo └── README.md # Documentação do projeto
+```bash
+cargo run                                   # dados de exemplo
+cargo run -- examples/exemplo.csv           # lê um CSV "x,y" (cabeçalho opcional, # comenta)
+cargo run -- examples/exemplo.csv 6 7 8     # e prevê y para x = 6, 7 e 8
+```
 
----
+## Desenvolvimento
 
-## **Como Executar**
-
-### **Pré-requisitos**
-- Instale o Rust: [https://www.rust-lang.org/tools/install](https://www.rust-lang.org/tools/install)
-
-### **Passos**
-1. Clone o repositório:
-   ```bash
-   git clone https://github.com/Brunacoelhob/rust-regressao-linear.git
-   cd rust-regressao-linear
-
-2. Compile o projeto:
-cargo build
-
-4. Execute o programa:
-cargo run
-
-4- Execute os testes:
+```bash
 cargo test
+cargo fmt --check
+cargo clippy --all-targets -- -D warnings
+```
 
+Requer o [Rust](https://www.rust-lang.org/tools/install) estável.
+
+## Estrutura
+
+```
+src/
+├── lib.rs                  # biblioteca (com doctest)
+├── main.rs                 # CLI
+└── regression/linear.rs    # algoritmo, métricas, erros e testes
+examples/exemplo.csv
+```
+
+## Licença
+
+[MIT](LICENSE)
